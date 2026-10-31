@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YiGuo Zhou — AI Film Studies</title>
+<style>
+:root{
+  --ink:#1d1d1f;
+  --ink-soft:#3f3f44;
+  --muted:#77777e;
+  --line:rgba(255,255,255,.55);
+  --line-soft:rgba(255,255,255,.34);
+  --glass:rgba(255,255,255,.30);
+  --glass-strong:rgba(255,255,255,.52);
+  --blur:22px;
+  --shadow:0 18px 48px rgba(31,38,135,.14), inset 0 1px 0 rgba(255,255,255,.65);
+  --shadow-soft:0 10px 30px rgba(31,38,135,.10);
+  --lav:#d8c9ff;
+  --blue:#bfe0ff;
+  --pink:#ffd0dc;
+  --mint:#c6f0df;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --cw:clamp(178px,19.5vw,310px);
+  --radius:clamp(255px,28vw,450px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:#ececec;
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue","Inter",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+button{font:inherit;color:inherit;border:0;background:none}
+a{color:inherit;text-decoration:none}
+img{display:block}
+:focus-visible{outline:2px solid rgba(29,29,31,.55);outline-offset:3px}
+
+.stage{
+  min-height:100svh;
+  display:grid;
+  place-items:center;
+  padding:clamp(10px,1.8vw,22px);
+}
+.app{
+  position:relative;
+  width:min(1600px,100%);
+  height:calc(100svh - clamp(20px,3.6vw,44px));
+  border-radius:clamp(22px,2.2vw,34px);
+  overflow:hidden;
+  background:rgba(255,255,255,.46);
+  border:1px solid rgba(255,255,255,.62);
+  box-shadow:0 30px 90px rgba(28,30,52,.16);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  isolation:isolate;
+}
+
+/* ---------- 流动光晕 ---------- */
+.mesh{position:absolute;inset:-28%;z-index:0;filter:blur(64px);pointer-events:none;opacity:.82}
+.blob{position:absolute;border-radius:50%;will-change:transform}
+.b1{width:56%;height:52%;left:-8%;top:-6%;background:radial-gradient(circle,var(--lav) 0%,rgba(216,201,255,0) 68%);animation:drift1 24s ease-in-out infinite alternate}
+.b2{width:52%;height:56%;right:-10%;top:-10%;background:radial-gradient(circle,var(--blue) 0%,rgba(191,224,255,0) 68%);animation:drift2 30s ease-in-out infinite alternate}
+.b3{width:58%;height:52%;left:-12%;bottom:-16%;background:radial-gradient(circle,var(--pink) 0%,rgba(255,208,220,0) 68%);animation:drift3 27s ease-in-out infinite alternate}
+.b4{width:48%;height:48%;right:-6%;bottom:-12%;background:radial-gradient(circle,var(--mint) 0%,rgba(198,240,223,0) 68%);animation:drift4 22s ease-in-out infinite alternate}
+@keyframes drift1{from{transform:translate3d(-2%,-2%,0) scale(1)}to{transform:translate3d(7%,5%,0) scale(1.12)}}
+@keyframes drift2{from{transform:translate3d(3%,0,0) scale(1.04)}to{transform:translate3d(-6%,7%,0) scale(.94)}}
+@keyframes drift3{from{transform:translate3d(0,3%,0) scale(.96)}to{transform:translate3d(6%,-5%,0) scale(1.1)}}
+@keyframes drift4{from{transform:translate3d(0,-2%,0) scale(1)}to{transform:translate3d(-8%,4%,0) scale(1.08)}}
+/* 细颗粒，让玻璃更像实体 */
+.app::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+/* ---------- 顶栏 ---------- */
+.top{
+  position:absolute;left:0;right:0;top:0;z-index:12;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:clamp(18px,2.3vw,32px);
+}
+.logo{
+  display:flex;align-items:baseline;gap:1px;
+  font-size:clamp(13px,1.05vw,15px);font-weight:600;letter-spacing:.035em;
+}
+.logo sup{font-size:.52em;font-weight:500;transform:translateY(-.35em);letter-spacing:0}
+.top-actions{display:flex;align-items:center;gap:10px}
+.pill{
+  height:clamp(38px,3.3vw,44px);
+  padding:0 clamp(15px,1.4vw,20px);
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:999px;
+  background:var(--glass-strong);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter:blur(var(--blur)) saturate(180%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(180%);
+  font-size:11px;font-weight:650;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .45s var(--ease),background .45s,box-shadow .45s;
+}
+.pill:hover{transform:translateY(-2px);background:rgba(255,255,255,.66);box-shadow:0 16px 38px rgba(31,38,135,.18), inset 0 1px 0 #fff}
+.pill .plus{font-size:15px;line-height:1;font-weight:400;transform:translateY(-1px)}
+.menu-btn{
+  width:clamp(38px,3.3vw,44px);height:clamp(38px,3.3vw,44px);
+  border-radius:50%;
+  background:var(--glass-strong);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter:blur(var(--blur)) saturate(180%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(180%);
+  display:grid;place-items:center;gap:0;cursor:pointer;
+  transition:transform .45s var(--ease),background .45s;
+}
+.menu-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.66)}
+.music-btn{position:relative}
+.music-btn .note{width:15px;height:15px;stroke:var(--ink);stroke-width:1.4;fill:none}
+.music-btn .on-dot{
+  position:absolute;right:9px;top:9px;
+  width:5px;height:5px;border-radius:50%;
+  background:#5ecfa4;box-shadow:0 0 0 2px rgba(255,255,255,.6);
+  opacity:0;transition:opacity .3s;
+}
+.music-btn.is-on .on-dot{opacity:1}
+.menu-btn i{display:block;width:15px;height:1.5px;background:var(--ink);border-radius:2px}
+.menu-btn i + i{margin-top:3.5px}
+
+/* ---------- 中央名字 + 书堆 ---------- */
+.center-stage{position:absolute;inset:0;z-index:2;pointer-events:none}
+.display{
+  position:absolute;left:50%;top:46%;
+  transform:translate(-50%,-50%);
+  margin:0;z-index:1;
+  font-size:clamp(48px,13vw,210px);
+  line-height:.82;font-weight:900;letter-spacing:-.052em;
+  white-space:nowrap;color:var(--ink);
+  user-select:none;pointer-events:none;
+  text-rendering:geometricPrecision;
+}
+.display sup{
+  position:relative;top:-1.1em;
+  font-size:.14em;font-weight:600;letter-spacing:0;
+  margin-left:.06em;
+}
+.stack-wrap{
+  position:absolute;left:50%;top:46%;
+  width:var(--cw);height:calc(var(--cw) * 1.3333);
+  transform:translate(-50%,-50%);
+  perspective:1100px;perspective-origin:50% 50%;
+  z-index:3;pointer-events:auto;
+  transition:transform .7s var(--ease),opacity .55s var(--ease),filter .55s var(--ease);
+}
+.stack-wrap.is-opening{transform:translate(-50%,-50%) scale(.7) translateY(-12px);opacity:0;filter:blur(6px);pointer-events:none}
+.stack{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  animation:spin 46s linear infinite;
+  will-change:transform;
+}
+.stack.is-paused{animation-play-state:paused}
+@keyframes spin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
+.stack-shadow{
+  position:absolute;left:50%;top:72%;width:min(44vw,560px);height:70px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,rgba(34,34,60,.18),rgba(34,34,60,0) 70%);
+  filter:blur(20px);z-index:2;pointer-events:none;
+}
+.slot{
+  position:absolute;inset:0;
+  transform-style:preserve-3d;
+  transform:rotateY(var(--a)) translateZ(var(--radius)) translateY(var(--dy));
+}
+.cover{
+  position:relative;display:block;width:100%;height:100%;padding:0;
+  border-radius:13px;overflow:hidden;
+  background:#fff;
+  border:1px solid rgba(255,255,255,.72);
+  box-shadow:0 24px 48px -22px rgba(22,24,48,.5), 0 4px 12px rgba(22,24,48,.12);
+  cursor:pointer;
+  transform:rotateZ(var(--tilt)) translateZ(0);
+  transition:transform .55s var(--ease),box-shadow .55s var(--ease),filter .55s;
+  will-change:transform;
+}
+.cover img,.cover video{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.cover::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.24),rgba(255,255,255,0) 42%),
+    linear-gradient(0deg,rgba(10,10,18,.34),rgba(10,10,18,0) 42%);
+}
+.cover-no{
+  position:absolute;left:8px;top:8px;z-index:3;
+  padding:3px 6px;border-radius:999px;
+  background:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.5);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  font-size:8px;font-weight:600;letter-spacing:.1em;color:#fff;
+}
+.cover-play{
+  position:absolute;left:50%;top:50%;z-index:3;
+  width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.24);border:1px solid rgba(255,255,255,.6);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  opacity:0;transform:scale(.8);transition:opacity .4s,transform .45s var(--ease);
+}
+.cover-play svg{width:8px;height:9px;fill:#fff;margin-left:1px}
+.cover:hover,.cover:focus-visible{
+  transform:rotateZ(0deg) scale(1.075) translateZ(26px);
+  box-shadow:0 36px 70px -22px rgba(22,24,48,.58), 0 0 0 1px rgba(255,255,255,.85), 0 0 32px rgba(255,255,255,.5);
+  filter:saturate(1.05);
+}
+.cover:hover .cover-play,.cover:focus-visible .cover-play{opacity:1;transform:scale(1)}
+
+/* ---------- 左下：作品信息 ---------- */
+.info{
+  position:absolute;left:clamp(16px,2.1vw,32px);bottom:clamp(16px,2.2vw,32px);
+  z-index:9;width:min(300px,21vw);
+  padding:clamp(14px,1.2vw,18px);
+  border-radius:20px;
+  background:var(--glass);
+  border:1px solid var(--line-soft);
+  box-shadow:var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.55);
+  backdrop-filter:blur(var(--blur)) saturate(170%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(170%);
+  transition:opacity .25s var(--ease),transform .25s var(--ease);
+}
+.info.is-swapping{opacity:.25;transform:translateY(3px)}
+.info-head{
+  display:flex;align-items:center;gap:7px;
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+}
+.info-head b{color:var(--ink);font-weight:650}
+.info-title{
+  margin:6px 0 6px;
+  font-size:clamp(19px,1.65vw,25px);
+  font-weight:800;letter-spacing:-.02em;line-height:1.1;
+}
+.info-desc{
+  margin:0;min-height:46px;
+  font-size:12px;line-height:1.64;font-weight:400;color:var(--ink-soft);
+}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tag{
+  padding:4px 9px;border-radius:999px;
+  background:rgba(255,255,255,.32);
+  border:1px solid rgba(255,255,255,.55);
+  font-size:9.5px;letter-spacing:.02em;color:#46464b;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.socials{display:flex;gap:7px;margin-top:12px}
+.social{
+  width:33px;height:33px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.34);
+  border:1px solid rgba(255,255,255,.58);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-size:8.5px;font-weight:650;letter-spacing:.02em;color:#3b3b40;
+  cursor:pointer;
+  transition:transform .4s var(--ease),background .4s;
+}
+.social:hover{transform:translateY(-3px);background:rgba(255,255,255,.6)}
+
+/* ---------- 右下：二维码 ---------- */
+.qr-card{
+  position:absolute;right:clamp(16px,2.1vw,32px);bottom:clamp(16px,2.2vw,32px);
+  z-index:9;width:clamp(120px,10.5vw,148px);
+  padding:9px;border-radius:22px;
+  background:var(--glass-strong);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter:blur(var(--blur)) saturate(180%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(180%);
+  cursor:pointer;
+  transition:transform .45s var(--ease),box-shadow .45s;
+}
+.qr-card:hover{transform:translateY(-4px);box-shadow:0 26px 60px rgba(31,38,135,.2), inset 0 1px 0 #fff}
+.qr{
+  position:relative;aspect-ratio:1/1;border-radius:14px;overflow:hidden;
+  background:#fff;
+}
+.qr img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.qr-fallback{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  background:
+    radial-gradient(circle at 20% 15%,rgba(216,201,255,.35),transparent 55%),
+    radial-gradient(circle at 82% 88%,rgba(198,240,223,.4),transparent 55%),
+    #fff;
+  color:#86868b;text-align:center;
+}
+.qr-fallback svg{width:26px;height:26px;opacity:.55}
+.qr-fallback span{font-size:8.5px;letter-spacing:.06em;line-height:1.5}
+.qr-cap{
+  margin-top:7px;text-align:center;
+  font-size:9px;letter-spacing:.05em;color:#49494e;
+}
+
+/* ---------- 移动端横向胶片（桌面隐藏） ---------- */
+.mobile-reel{display:none}
+
+/* ---------- 播放器 ---------- */
+.player{
+  position:fixed;inset:0;z-index:70;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(12px,2vw,24px);
+  background:rgba(240,241,246,.52);
+  backdrop-filter:blur(30px) saturate(160%);
+  -webkit-backdrop-filter:blur(30px) saturate(160%);
+  opacity:0;pointer-events:none;
+  transition:opacity .5s var(--ease);
+}
+.player.is-open{opacity:1;pointer-events:auto}
+.player-box{
+  width:min(1120px,95vw);
+  max-height:94svh;
+  padding:clamp(10px,1.2vw,16px);
+  border-radius:26px;
+  background:rgba(255,255,255,.55);
+  border:1px solid rgba(255,255,255,.72);
+  box-shadow:0 40px 100px rgba(24,26,48,.26), inset 0 1px 0 rgba(255,255,255,.8);
+  transform:translateY(26px) scale(.965);
+  transition:transform .65s var(--ease);
+}
+.player.is-open .player-box{transform:translateY(0) scale(1)}
+.player-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:4px 4px 12px}
+.player-title{margin:0;font-size:clamp(17px,1.6vw,21px);font-weight:800;letter-spacing:-.01em}
+.player-sub{margin-top:3px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.player-close{
+  flex:none;width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.42);
+  border:1px solid rgba(255,255,255,.65);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+  cursor:pointer;transition:transform .4s var(--ease),background .4s;
+}
+.player-close:hover{transform:rotate(90deg) scale(1.04);background:rgba(255,255,255,.7)}
+.player-close svg{width:13px;height:13px;stroke:var(--ink);stroke-width:1.4;fill:none}
+.player-stage{
+  position:relative;
+  height:min(66svh,620px);
+  border-radius:18px;overflow:hidden;
+  background:#0c0c0e;
+  display:grid;place-items:center;
+}
+.player-stage video{
+  width:100%;height:100%;object-fit:contain;display:block;background:#0c0c0e;
+}
+.player-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 4px 2px;
+}
+.player-tools{display:flex;gap:7px}
+.mini-pill{
+  height:30px;padding:0 12px;border-radius:999px;
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.6);
+  font-size:9.5px;letter-spacing:.06em;color:#3d3d42;cursor:pointer;
+  transition:background .3s,transform .3s var(--ease);
+}
+.mini-pill:hover{background:rgba(255,255,255,.68);transform:translateY(-1px)}
+.player-note{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+
+/* ---------- 菜单 / 联系 ---------- */
+.menu,.contact{
+  position:fixed;inset:0;z-index:80;
+  background:rgba(242,242,246,.42);
+  backdrop-filter:blur(34px) saturate(160%);
+  -webkit-backdrop-filter:blur(34px) saturate(160%);
+  opacity:0;pointer-events:none;
+  transition:opacity .45s var(--ease);
+}
+.menu.is-open,.contact.is-open{opacity:1;pointer-events:auto}
+.menu-inner{
+  position:relative;height:100%;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(28px,8vw,120px);
+}
+.menu-close{
+  position:absolute;right:clamp(18px,2.4vw,34px);top:clamp(18px,2.4vw,34px);
+}
+.menu-link{
+  display:flex;align-items:baseline;gap:18px;
+  padding:clamp(10px,1.4vw,18px) 0;
+  border-bottom:1px solid rgba(29,29,31,.1);
+  font-size:clamp(34px,5.4vw,72px);font-weight:900;letter-spacing:-.04em;
+  cursor:pointer;transition:padding-left .45s var(--ease),opacity .3s;
+  text-align:left;
+}
+.menu-link:hover{padding-left:14px;opacity:.72}
+.menu-link span{font-size:10px;font-weight:500;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.menu-foot{
+  margin-top:clamp(24px,4vw,48px);
+  display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;
+  font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;
+}
+.contact{display:grid;place-items:center;padding:20px}
+.contact-card{
+  width:min(420px,92vw);
+  padding:clamp(24px,3vw,34px);
+  border-radius:26px;
+  background:rgba(255,255,255,.56);
+  border:1px solid rgba(255,255,255,.72);
+  box-shadow:0 36px 90px rgba(24,26,48,.24), inset 0 1px 0 rgba(255,255,255,.8);
+  transform:translateY(18px) scale(.97);
+  transition:transform .55s var(--ease);
+}
+.contact.is-open .contact-card{transform:none}
+.contact-kicker{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.contact-title{margin:9px 0 18px;font-size:clamp(26px,3vw,38px);font-weight:900;letter-spacing:-.03em}
+.contact-row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid rgba(29,29,31,.1)}
+.contact-row span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.contact-row strong{font-size:15px;font-weight:650}
+.contact-note{margin-top:16px;font-size:11px;line-height:1.6;color:var(--ink-soft)}
+.contact-close{margin-top:20px;width:100%;justify-content:center}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:50%;bottom:clamp(20px,3vw,36px);z-index:100;
+  transform:translate(-50%,16px);
+  padding:10px 18px;border-radius:999px;
+  background:rgba(29,29,31,.82);color:#fff;
+  font-size:11px;letter-spacing:.04em;
+  opacity:0;pointer-events:none;
+  transition:opacity .35s,transform .45s var(--ease);
+  backdrop-filter:blur(10px);
+}
+.toast.is-on{opacity:1;transform:translate(-50%,0)}
+
+body.is-locked{overflow:hidden}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:1080px){
+  :root{--cw:clamp(158px,19.5vw,225px);--radius:clamp(228px,27vw,322px)}
+  .info{width:min(268px,25vw)}
+  .qr-card{width:112px}
+  .display{font-size:clamp(46px,12.4vw,150px)}
+}
+@media (max-width:900px){
+  :root{--blur:14px}
+  .stage{display:block;padding:10px}
+  .app{
+    height:auto;min-height:calc(100svh - 20px);
+    display:flex;flex-direction:column;
+    border-radius:22px;
+  }
+  .mesh{opacity:.72;filter:blur(48px)}
+  .top{position:relative;padding:18px 18px 4px}
+  .logo{font-size:13px}
+  .pill{height:38px;padding:0 14px;font-size:10px}
+  .menu-btn{width:38px;height:38px}
+  .center-stage{
+    position:relative;inset:auto;z-index:2;
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:6px;
+  }
+  .display{
+    position:relative;left:auto;top:auto;transform:none;
+    font-size:clamp(40px,11.6vw,68px);line-height:.86;
+    letter-spacing:-.058em;
+    margin:14px 0 -16px;z-index:1;
+  }
+  .stack-wrap,.stack-shadow{display:none}
+  .mobile-reel{
+    position:relative;z-index:3;
+    display:flex;gap:10px;width:100%;
+    padding:24px 18px 4px;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .mobile-reel::-webkit-scrollbar{display:none}
+  .mobile-card{
+    flex:0 0 clamp(140px,42vw,180px);
+    aspect-ratio:3/4;
+    border-radius:13px;overflow:hidden;position:relative;
+    border:1px solid rgba(255,255,255,.72);
+    box-shadow:0 16px 34px -18px rgba(22,24,48,.5);
+    scroll-snap-align:center;
+    cursor:pointer;
+  }
+  .mobile-card img,.mobile-card video{width:100%;height:100%;object-fit:cover}
+  .mobile-card .cover-no{left:7px;top:7px}
+  .mobile-card::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(0deg,rgba(10,10,18,.36),transparent 40%);
+  }
+  .info{
+    position:relative;left:auto;bottom:auto;z-index:5;
+    width:auto;margin:16px 16px 0;
+  }
+  .info-desc{max-width:none;min-height:0}
+  .qr-card{
+    position:relative;right:auto;bottom:auto;z-index:5;
+    width:132px;margin:18px 16px 22px;align-self:flex-end;
+  }
+  .player-box{width:100%;max-height:92svh;border-radius:20px}
+  .player-stage{height:min(62svh,520px)}
+  .menu-inner{padding:28px 22px;justify-content:center}
+  .menu-link{font-size:clamp(34px,10vw,54px)}
+  .player-foot{align-items:flex-start;gap:8px}
+  .player-note{display:none}
+  .contact-card{width:100%;max-width:420px}
+}
+@media (max-height:680px) and (min-width:901px){
+  .display{font-size:clamp(46px,10.5vw,150px)}
+  .info-desc{min-height:0}
+  .info-title{margin:5px 0}
+  .qr-card{width:112px}
+}
+@media (prefers-reduced-motion:reduce){
+  .stack{animation:none}
+  .blob{animation:none}
+  .cover,.info,.qr-card,.player,.player-box,.contact-card,.menu,.toast{transition-duration:.01ms}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <main class="app" id="app">
+    <div class="mesh" aria-hidden="true">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <span class="blob b3"></span>
+      <span class="blob b4"></span>
+    </div>
+
+    <header class="top">
+      <a class="logo" href="#top" aria-label="YiGuo Zhou 首页">YIGUO ZHOU<sup>®</sup></a>
+      <div class="top-actions">
+        <button class="menu-btn music-btn" id="musicBtn" type="button" aria-label="背景音乐：开" aria-pressed="true">
+          <svg class="note" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 12.2V4.1l7-1.4v7.6"></path><circle cx="4.2" cy="12.6" r="1.9"></circle><circle cx="11.2" cy="10.6" r="1.9"></circle></svg>
+          <span class="on-dot" aria-hidden="true"></span>
+        </button>
+        <button class="pill" id="talkBtn" type="button">LET'S TALK <span class="plus">+</span></button>
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="menu">
+          <i></i><i></i><i></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="center-stage" id="centerStage">
+      <h1 class="display" id="displayName">YIGUO ZHOU<sup>©</sup></h1>
+      <div class="stack-shadow" aria-hidden="true"></div>
+      <div class="stack-wrap" id="stackWrap">
+        <div class="stack" id="stack"></div>
+      </div>
+      <div class="mobile-reel" id="mobileReel" aria-label="作品列表"></div>
+    </div>
+
+    <section class="info" id="info" aria-live="polite">
+      <div class="info-head"><b id="infoNo">01</b><span>/ 06</span><span>·</span><span id="infoEn">Stern, Yet Tender</span></div>
+      <h2 class="info-title" id="infoTitle">严厉也温柔</h2>
+      <p class="info-desc" id="infoDesc"></p>
+      <div class="tags" id="infoTags"></div>
+      <div class="socials">
+        <button class="social" type="button" aria-label="Instagram（链接待替换）">IG</button>
+        <button class="social" type="button" aria-label="Behance（链接待替换）">BÉ</button>
+        <button class="social" type="button" aria-label="Bilibili（链接待替换）">B!</button>
+        <button class="social" type="button" aria-label="邮件（链接待替换）">✉</button>
+      </div>
+    </section>
+
+    <aside class="qr-card" id="qrCard" role="button" tabindex="0" aria-label="扫码添加微信">
+      <div class="qr">
+        <img id="qrImg" src="assets/qr.png" alt="微信二维码">
+        <div class="qr-fallback" id="qrFallback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M19 8.5c0 3.6-3.4 6.5-7.5 6.5-.9 0-1.8-.1-2.6-.4L5 16l.9-3.1C4.7 11.6 4 10.1 4 8.5 4 4.9 7.4 2 11.5 2S19 4.9 19 8.5Z"></path>
+            <path d="M15.8 12.8c2.9 0 5.2 2.1 5.2 4.6 0 1.2-.5 2.3-1.4 3.1l.7 2.5-4-1.4c-.7.2-1.5.4-2.3.4-2.9 0-5.2-2.1-5.2-4.6"></path>
+          </svg>
+          <span>二维码<br>待替换</span>
+        </div>
+      </div>
+      <div class="qr-cap">扫码添加微信</div>
+    </aside>
+  </main>
+</div>
+
+<!-- 播放器 -->
+<div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="player-box">
+    <div class="player-top">
+      <div>
+        <h2 class="player-title" id="pTitle">严厉也温柔</h2>
+        <div class="player-sub" id="pSub">2026 · 00:15 · 2.30:1</div>
+      </div>
+      <button class="player-close" id="playerClose" type="button" aria-label="关闭播放器">
+        <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"></path></svg>
+      </button>
+    </div>
+    <div class="player-stage">
+      <video id="pVideo" playsinline preload="none" muted loop></video>
+    </div>
+    <div class="player-foot">
+      <div class="player-tools">
+        <button class="mini-pill" id="muteBtn" type="button" aria-pressed="true">静音 · Muted</button>
+      </div>
+      <span class="player-note" id="pNote">AI Film · 影像练习</span>
+    </div>
+  </div>
+</div>
+
+<!-- 菜单 -->
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="导航菜单">
+  <button class="player-close menu-close" id="menuClose" type="button" aria-label="关闭菜单">
+    <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"></path></svg>
+  </button>
+  <div class="menu-inner">
+    <button class="menu-link" data-action="works" type="button"><span>01</span>作品 Works</button>
+    <button class="menu-link" data-action="contact" type="button"><span>02</span>联系 Contact</button>
+    <button class="menu-link" data-action="wechat" type="button"><span>03</span>微信 WeChat</button>
+    <div class="menu-foot">
+      <span>YiGuo Zhou © 2026</span>
+      <span>AI Film Studies</span>
+    </div>
+  </div>
+</div>
+
+<!-- 联系 -->
+<div class="contact" id="contact" role="dialog" aria-modal="true" aria-label="联系方式">
+  <div class="contact-card">
+    <div class="contact-kicker">LET'S TALK · 联系</div>
+    <h2 class="contact-title">一起做点<br>新的东西。</h2>
+    <div class="contact-row"><span>Phone</span><strong><a href="tel:17783699486">177 8369 9486</a></strong></div>
+    <div class="contact-row"><span>WeChat</span><strong>扫码添加</strong></div>
+    <p class="contact-note">微信二维码在首页右下角，也可以直接打电话找我。邮件与社交链接后续补充。</p>
+    <button class="mini-pill contact-close" id="contactClose" type="button">关闭 Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const WORKS = [
+  {cn:'严厉也温柔', en:'Stern, Yet Tender', year:'2026', dur:'00:15', aspect:'2.30:1', poster:'assets/w1/poster.jpg', clip:'assets/w1/clip.mp4',
+   desc:'用豆包结合网络图片再次生成并提供剧情灵感，再结合剧情生成提示词，使用即梦制作。',
+   tags:['豆包','即梦','AI 短片']},
+  {cn:'天眼洞vlog', en:'Daylight from Above', year:'2026', dur:'00:38', aspect:'9:16', poster:'assets/w2/poster.jpg', clip:'assets/w2/clip.mp4',
+   desc:'带外国人入境游时，根据实拍素材，由豆包生成剧本与道具，再由 TapNow 制作。',
+   tags:['豆包','TapNow','入境游']},
+  {cn:'两男争宠', en:'Two Suitors', year:'2025', dur:'00:15', aspect:'2.30:1', poster:'assets/w3/poster.jpg', clip:'assets/w3/clip.mp4',
+   desc:'黑白双帅房顶打斗，由小云雀制作。',
+   tags:['小云雀','武侠','AI 短片']},
+  {cn:'我的破书摊镇鬼', en:'Ghost at the Bookstall', year:'2025', dur:'00:34', aspect:'16:9', poster:'assets/w4/poster.jpg', clip:'assets/w4/clip.mp4',
+   desc:'根据法医朋友分享的案例，由豆包制作剧本，豆包 Seedance 2.5 制作分镜短片，剪映剪辑拼接。',
+   tags:['豆包','Seedance 2.5','剪映']},
+  {cn:'赛博重庆', en:'Cyber Chongqing', year:'2025', dur:'00:30', aspect:'16:9', poster:'assets/w5/poster.jpg', clip:'assets/w5/clip.mp4',
+   desc:'帮入境游导游制作重庆赛博朋克宣传片，使用 GPT 写提示词，豆包生成。',
+   tags:['GPT','豆包','赛博朋克']},
+  {cn:'一杯在手', en:'A Cup in Hand', year:'2026', dur:'00:09', aspect:'9:16', poster:'assets/w6/poster.jpg', clip:'assets/w6/clip.mp4',
+   desc:'由豆包、GPT 生成产品多视图，后由 TapNow 生成，剪映剪辑。',
+   tags:['豆包','GPT','TapNow','剪映']}
+];
+
+const stack = document.getElementById('stack');
+const stackWrap = document.getElementById('stackWrap');
+const mobileReel = document.getElementById('mobileReel');
+const info = document.getElementById('info');
+const infoNo = document.getElementById('infoNo');
+const infoEn = document.getElementById('infoEn');
+const infoTitle = document.getElementById('infoTitle');
+const infoDesc = document.getElementById('infoDesc');
+const infoTags = document.getElementById('infoTags');
+const player = document.getElementById('player');
+const pVideo = document.getElementById('pVideo');
+const pTitle = document.getElementById('pTitle');
+const pSub = document.getElementById('pSub');
+const pNote = document.getElementById('pNote');
+const muteBtn = document.getElementById('muteBtn');
+const menu = document.getElementById('menu');
+const menuBtn = document.getElementById('menuBtn');
+const musicBtn = document.getElementById('musicBtn');
+const contact = document.getElementById('contact');
+const qrCard = document.getElementById('qrCard');
+const toast = document.getElementById('toast');
+
+let active = 0;
+let opening = false;
+let openTimer = null;
+let toastTimer = null;
+let lastFocus = null;
+
+const pad = n => String(n).padStart(2, '0');
+
+/* ---------- 构建 3D 书堆 ---------- */
+WORKS.forEach((w, i) => {
+  const slot = document.createElement('div');
+  slot.className = 'slot';
+  slot.style.setProperty('--a', (360 / WORKS.length * i) + 'deg');
+  slot.style.setProperty('--dy', ((i % 2 ? -1 : 1) * (10 + (i % 3) * 6)) + 'px');
+  slot.style.setProperty('--tilt', ((i % 2 ? -1 : 1) * (4 + (i % 3) * 2)) + 'deg');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'cover';
+  btn.dataset.i = i;
+  btn.setAttribute('aria-label', '打开作品：' + w.cn);
+  btn.innerHTML = `
+    <video src="${w.clip}" poster="${w.poster}" muted loop autoplay playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video>
+    <span class="cover-no">${pad(i + 1)}</span>
+    <span class="cover-play"><svg viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z"></path></svg></span>`;
+  slot.appendChild(btn);
+  stack.appendChild(slot);
+  bindCover(btn, i);
+});
+
+/* ---------- 移动端横向胶片 ---------- */
+WORKS.forEach((w, i) => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mobile-card';
+  btn.dataset.i = i;
+  btn.setAttribute('aria-label', '打开作品：' + w.cn);
+  btn.innerHTML = `<video src="${w.clip}" poster="${w.poster}" muted loop autoplay playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video><span class="cover-no">${pad(i + 1)}</span>`;
+  btn.addEventListener('click', () => openPlayer(i));
+  mobileReel.appendChild(btn);
+});
+
+/* ---------- 封面视频：桌面播书堆，手机播胶片 ---------- */
+const stackVideos = [...stack.querySelectorAll('video')];
+const reelVideos = [...mobileReel.querySelectorAll('video')];
+let videoSyncTimer = null;
+function syncCoverVideos(){
+  const isMobile = window.matchMedia('(max-width:900px)').matches;
+  stackVideos.forEach(v => { if(isMobile) v.pause(); else v.play().catch(() => {}); });
+  reelVideos.forEach(v => { if(isMobile) v.play().catch(() => {}); else v.pause(); });
+}
+function pauseCoverVideos(){
+  stackVideos.forEach(v => v.pause());
+  reelVideos.forEach(v => v.pause());
+}
+syncCoverVideos();
+window.addEventListener('resize', () => {
+  clearTimeout(videoSyncTimer);
+  videoSyncTimer = window.setTimeout(syncCoverVideos, 200);
+});
+
+/* ---------- 信息区 ---------- */
+function renderInfo(i, animate = true){
+  active = i;
+  const w = WORKS[i];
+  if(animate){
+    info.classList.add('is-swapping');
+    window.setTimeout(() => {
+      paintInfo(i);
+      info.classList.remove('is-swapping');
+    }, 170);
+  } else {
+    paintInfo(i);
+  }
+}
+function paintInfo(i){
+  const w = WORKS[i];
+  infoNo.textContent = pad(i + 1);
+  infoEn.textContent = w.en;
+  infoTitle.textContent = w.cn;
+  infoDesc.textContent = w.desc;
+  infoTags.innerHTML = w.tags.map(t => `<span class="tag">${t}</span>`).join('');
+}
+
+/* ---------- 悬停 / 焦点 ---------- */
+function bindCover(btn, i){
+  btn.addEventListener('mouseenter', () => {
+    if(opening) return;
+    stack.classList.add('is-paused');
+    renderInfo(i);
+  });
+  btn.addEventListener('mouseleave', () => {
+    if(opening) return;
+    stack.classList.remove('is-paused');
+  });
+  btn.addEventListener('focus', () => {
+    if(opening) return;
+    stack.classList.add('is-paused');
+    renderInfo(i);
+  });
+  btn.addEventListener('blur', () => {
+    if(opening) return;
+    stack.classList.remove('is-paused');
+  });
+  btn.addEventListener('click', () => openPlayer(i));
+}
+stackWrap.addEventListener('mouseleave', () => {
+  if(!opening) stack.classList.remove('is-paused');
+});
+
+/* ---------- 播放 ---------- */
+function openPlayer(i){
+  if(opening) return;
+  opening = true;
+  lastFocus = document.querySelector('.cover[data-i="'+i+'"], .mobile-card[data-i="'+i+'"]') || document.activeElement;
+  renderInfo(i, false);
+
+  const w = WORKS[i];
+  pTitle.textContent = w.cn;
+  pSub.textContent = `${w.year} · ${w.dur} · ${w.aspect}`;
+  pNote.textContent = w.en;
+  pVideo.poster = w.poster;
+  pVideo.src = w.clip;
+  pVideo.muted = true;
+  muteBtn.textContent = '静音 · Muted';
+  muteBtn.setAttribute('aria-pressed', 'true');
+
+  stack.classList.add('is-paused');
+  stackWrap.classList.add('is-opening');
+  pauseCoverVideos();
+  pauseMusic();
+
+  clearTimeout(openTimer);
+  openTimer = window.setTimeout(() => {
+    player.classList.add('is-open');
+    document.body.classList.add('is-locked');
+    pVideo.play().catch(() => {});
+  }, 320);
+}
+
+function closePlayer(){
+  clearTimeout(openTimer);
+  player.classList.remove('is-open');
+  document.body.classList.remove('is-locked');
+  pVideo.pause();
+  window.setTimeout(() => {
+    pVideo.removeAttribute('src');
+    pVideo.load();
+    stackWrap.classList.remove('is-opening');
+    stack.classList.remove('is-paused');
+    opening = false;
+    syncCoverVideos();
+    if(musicWanted) startMusic();
+    if(lastFocus && lastFocus.focus) lastFocus.focus({preventScroll:true});
+  }, 480);
+}
+
+document.getElementById('playerClose').addEventListener('click', closePlayer);
+player.addEventListener('click', e => { if(e.target === player) closePlayer(); });
+muteBtn.addEventListener('click', () => {
+  pVideo.muted = !pVideo.muted;
+  muteBtn.textContent = pVideo.muted ? '静音 · Muted' : '有声 · Sound';
+  muteBtn.setAttribute('aria-pressed', String(pVideo.muted));
+});
+
+/* ---------- 背景钢琴：Web Audio 生成式，音量 30% ---------- */
+let actx = null;
+let master = null;
+let musicWanted = true;
+let musicPlaying = false;
+let musicTimer = null;
+let musicArmed = false;
+let chordStep = 0;
+const CHORDS = [
+  [261.63, 329.63, 392.00, 523.25],
+  [220.00, 261.63, 329.63, 440.00],
+  [174.61, 220.00, 261.63, 349.23],
+  [196.00, 246.94, 293.66, 392.00]
+];
+
+function initAudio(){
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return false;
+  actx = new Ctx();
+  master = actx.createGain();
+  master.gain.value = .3;
+  master.connect(actx.destination);
+  return true;
+}
+
+function pianoTone(freq, delay, dur, level){
+  if(!actx) return;
+  const t0 = actx.currentTime + delay;
+  const osc = actx.createOscillator();
+  const g = actx.createGain();
+  const lp = actx.createBiquadFilter();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(freq, t0);
+  lp.type = 'lowpass';
+  lp.frequency.value = 1500;
+  lp.Q.value = .7;
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(level, t0 + .035);
+  g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+  osc.connect(lp);
+  lp.connect(g);
+  g.connect(master);
+  osc.start(t0);
+  osc.stop(t0 + dur + .06);
+}
+
+function schedulePhrase(){
+  if(!actx || !musicPlaying) return;
+  const chord = CHORDS[chordStep % CHORDS.length];
+  chord.forEach((f, i) => pianoTone(f, .06 + i * .11, 2.7, .045));
+  pianoTone(chord[1 + (chordStep % 2)] * 2, 1.35, 2.1, .018);
+  chordStep++;
+  musicTimer = window.setTimeout(schedulePhrase, 4600);
+}
+
+function updateMusicBtn(){
+  musicBtn.classList.toggle('is-on', musicPlaying);
+  musicBtn.setAttribute('aria-pressed', String(musicWanted));
+  musicBtn.setAttribute('aria-label', musicWanted ? '背景音乐：开' : '背景音乐：关');
+}
+
+function startMusic(){
+  musicWanted = true;
+  if(!actx && !initAudio()){ musicWanted = false; updateMusicBtn(); return; }
+  if(actx.state === 'suspended') actx.resume().catch(() => {});
+  if(!musicPlaying){
+    musicPlaying = true;
+    schedulePhrase();
+  }
+  updateMusicBtn();
+}
+
+function pauseMusic(){
+  musicPlaying = false;
+  clearTimeout(musicTimer);
+  if(actx && actx.state === 'running') actx.suspend().catch(() => {});
+  updateMusicBtn();
+}
+
+function armMusic(e){
+  if(musicArmed || !musicWanted) return;
+  if(e && e.target && e.target.closest && e.target.closest('#musicBtn')) return;
+  musicArmed = true;
+  startMusic();
+}
+document.addEventListener('pointerdown', armMusic, true);
+document.addEventListener('keydown', armMusic, true);
+
+musicBtn.addEventListener('click', () => {
+  if(musicWanted){
+    musicWanted = false;
+    pauseMusic();
+  } else {
+    musicArmed = true;
+    startMusic();
+  }
+});
+updateMusicBtn();
+
+/* ---------- 菜单 ---------- */
+function openMenu(){
+  menu.classList.add('is-open');
+  menuBtn.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('is-locked');
+  document.getElementById('menuClose').focus({preventScroll:true});
+}
+function closeMenu(){
+  menu.classList.remove('is-open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('is-locked');
+  menuBtn.focus({preventScroll:true});
+}
+menuBtn.addEventListener('click', openMenu);
+document.getElementById('menuClose').addEventListener('click', closeMenu);
+menu.addEventListener('click', e => { if(e.target === menu) closeMenu(); });
+
+document.querySelectorAll('.menu-link').forEach(link => {
+  link.addEventListener('click', () => {
+    const action = link.dataset.action;
+    closeMenu();
+    if(action === 'contact'){
+      window.setTimeout(openContact, 260);
+    } else if(action === 'wechat'){
+      pulseQr();
+    } else {
+      stackWrap.classList.remove('is-paused');
+    }
+  });
+});
+
+/* ---------- 联系 ---------- */
+function openContact(){
+  contact.classList.add('is-open');
+  document.body.classList.add('is-locked');
+  document.getElementById('contactClose').focus({preventScroll:true});
+}
+function closeContact(){
+  contact.classList.remove('is-open');
+  document.body.classList.remove('is-locked');
+}
+document.getElementById('talkBtn').addEventListener('click', openContact);
+document.getElementById('contactClose').addEventListener('click', closeContact);
+contact.addEventListener('click', e => { if(e.target === contact) closeContact(); });
+
+/* ---------- 二维码 ---------- */
+const qrImg = document.getElementById('qrImg');
+const qrFallback = document.getElementById('qrFallback');
+qrImg.addEventListener('load', () => { qrFallback.style.display = 'none'; });
+qrImg.addEventListener('error', () => { qrImg.style.display = 'none'; });
+
+function pulseQr(){
+  qrCard.animate(
+    [{transform:'translateY(0) scale(1)'},{transform:'translateY(-6px) scale(1.04)'},{transform:'translateY(0) scale(1)'}],
+    {duration:900, easing:'cubic-bezier(.22,1,.36,1)'}
+  );
+  qrCard.focus({preventScroll:true});
+}
+qrCard.addEventListener('click', openContact);
+qrCard.addEventListener('keydown', e => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openContact(); }
+});
+
+/* ---------- toast ---------- */
+function showToast(text){
+  toast.textContent = text;
+  toast.classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => toast.classList.remove('is-on'), 1800);
+}
+document.querySelectorAll('.social').forEach(btn => {
+  btn.addEventListener('click', () => showToast('社交链接待替换'));
+});
+
+/* ---------- 键盘 ---------- */
+window.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    if(menu.classList.contains('is-open')) closeMenu();
+    else if(contact.classList.contains('is-open')) closeContact();
+    else if(player.classList.contains('is-open') || opening) closePlayer();
+  }
+});
+
+/* ---------- 初始化 ---------- */
+paintInfo(0);
+</script>
+</body>
+</html>
