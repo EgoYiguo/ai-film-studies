@@ -803,26 +803,51 @@ function endDrag(e){
   window.setTimeout(() => { suppressClick = false; }, 0);
 }
 
+let pressTarget = null, pressId = null;
+
 stackWrap.addEventListener('pointerdown', e => {
   if(opening) return;
   if(e.pointerType === 'mouse' && e.button !== 0) return;
-  dragging = true;
+  pressTarget = e.target.closest ? e.target.closest('.cover') : null;
+  pressId = e.pointerId;
   dragStartX = e.clientX;
   dragStartAngle = spinAngle;
   snap = null;
   clearTimeout(resumeTimer);
-  stackWrap.classList.add('is-dragging');
-  try { stackWrap.setPointerCapture(e.pointerId); } catch(_) {}
+  /* 先不抓取指针，避免抢走封面的 click，轻点仍能打开播放 */
 });
 stackWrap.addEventListener('pointermove', e => {
-  if(!dragging) return;
+  if(e.pointerId !== pressId) return;
   const dx = e.clientX - dragStartX;
-  if(Math.abs(dx) > 5) suppressClick = true;
+  if(!dragging){
+    if(Math.abs(dx) <= 6) return;
+    dragging = true;
+    suppressClick = true;
+    stackWrap.classList.add('is-dragging');
+    try { stackWrap.setPointerCapture(e.pointerId); } catch(_) {}
+  }
   spinAngle = dragStartAngle + dx * DRAG_DEG;
   applySpin();
 });
-stackWrap.addEventListener('pointerup', endDrag);
-stackWrap.addEventListener('pointercancel', endDrag);
+stackWrap.addEventListener('pointerup', e => {
+  if(e.pointerId !== pressId) return;
+  if(dragging){
+    endDrag(e);
+  } else if(pressTarget){
+    const idx = Number(pressTarget.dataset.i);
+    pressTarget = null;
+    pressId = null;
+    openPlayer(idx);
+  }
+  pressTarget = null;
+  pressId = null;
+});
+stackWrap.addEventListener('pointercancel', e => {
+  if(dragging) endDrag(e);
+  dragging = false;
+  pressTarget = null;
+  pressId = null;
+});
 
 /* ---------- 信息区 ---------- */
 function renderInfo(i, animate = true){
