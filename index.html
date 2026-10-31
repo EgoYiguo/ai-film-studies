@@ -156,11 +156,10 @@ img{display:block}
 .stack{
   position:relative;width:100%;height:100%;
   transform-style:preserve-3d;
-  animation:spin 46s linear infinite;
   will-change:transform;
 }
-.stack.is-paused{animation-play-state:paused}
-@keyframes spin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
+.stack-wrap{cursor:grab}
+.stack-wrap.is-dragging{cursor:grabbing}
 .stack-shadow{
   position:absolute;left:50%;top:72%;width:min(44vw,560px);height:70px;
   transform:translate(-50%,-50%);
@@ -216,8 +215,8 @@ img{display:block}
 /* ---------- 左下：作品信息 ---------- */
 .info{
   position:absolute;left:clamp(16px,1.8vw,26px);bottom:clamp(12px,1.5vw,20px);
-  z-index:9;width:min(300px,21vw);
-  padding:clamp(14px,1.2vw,18px);
+  z-index:9;width:min(372px,27vw);
+  padding:clamp(12px,1vw,15px) clamp(14px,1.2vw,18px);
   border-radius:20px;
   background:var(--glass);
   border:1px solid var(--line-soft);
@@ -233,15 +232,15 @@ img{display:block}
 }
 .info-head b{color:var(--ink);font-weight:650}
 .info-title{
-  margin:6px 0 6px;
-  font-size:clamp(19px,1.65vw,25px);
+  margin:5px 0 5px;
+  font-size:clamp(18px,1.5vw,23px);
   font-weight:800;letter-spacing:-.02em;line-height:1.1;
 }
 .info-desc{
-  margin:0;min-height:46px;
-  font-size:12px;line-height:1.64;font-weight:400;color:var(--ink-soft);
+  margin:0;
+  font-size:12px;line-height:1.55;font-weight:400;color:var(--ink-soft);
 }
-.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .tag{
   padding:4px 9px;border-radius:999px;
   background:rgba(255,255,255,.32);
@@ -249,19 +248,6 @@ img{display:block}
   font-size:9.5px;letter-spacing:.02em;color:#46464b;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
-.socials{display:flex;gap:7px;margin-top:12px}
-.social{
-  width:33px;height:33px;border-radius:50%;
-  display:grid;place-items:center;
-  background:rgba(255,255,255,.34);
-  border:1px solid rgba(255,255,255,.58);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  font-size:8.5px;font-weight:650;letter-spacing:.02em;color:#3b3b40;
-  cursor:pointer;
-  transition:transform .4s var(--ease),background .4s;
-}
-.social:hover{transform:translateY(-3px);background:rgba(255,255,255,.6)}
 
 /* ---------- 右下：二维码 ---------- */
 .qr-card{
@@ -339,7 +325,7 @@ img{display:block}
 .player-close svg{width:13px;height:13px;stroke:var(--ink);stroke-width:1.4;fill:none}
 .player-stage{
   position:relative;
-  height:min(66svh,620px);
+  max-width:100%;margin:0 auto;
   border-radius:18px;overflow:hidden;
   background:#0c0c0e;
   display:grid;place-items:center;
@@ -348,10 +334,11 @@ img{display:block}
   width:100%;height:100%;object-fit:contain;display:block;background:#0c0c0e;
 }
 .player-foot{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:11px 4px 2px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  flex-wrap:wrap;
+  padding:10px 4px 2px;
 }
-.player-tools{display:flex;gap:7px}
+.player-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .mini-pill{
   height:30px;padding:0 12px;border-radius:999px;
   display:inline-flex;align-items:center;gap:6px;
@@ -360,6 +347,22 @@ img{display:block}
   transition:background .3s,transform .3s var(--ease);
 }
 .mini-pill:hover{background:rgba(255,255,255,.68);transform:translateY(-1px)}
+.vol{
+  height:30px;padding:0 10px;border-radius:999px;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.6);
+}
+.vol svg{width:12px;height:12px;stroke:#3d3d42;stroke-width:1.5;fill:none;flex:none}
+.vol input{
+  width:74px;height:3px;appearance:none;-webkit-appearance:none;
+  background:rgba(29,29,31,.18);border-radius:99px;outline:none;cursor:pointer;
+}
+.vol input::-webkit-slider-thumb{
+  appearance:none;-webkit-appearance:none;width:11px;height:11px;border-radius:50%;
+  background:#1d1d1f;box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer;
+}
+.vol-val{font-size:9px;color:#3d3d42;min-width:28px;font-variant-numeric:tabular-nums}
+select.mini-pill{appearance:none;-webkit-appearance:none;padding-right:20px;cursor:pointer}
 .player-note{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
 
 /* ---------- 菜单 / 联系 ---------- */
@@ -433,7 +436,7 @@ body.is-locked{overflow:hidden}
 /* ---------- 响应式 ---------- */
 @media (max-width:1080px){
   :root{--cw:clamp(158px,19.5vw,225px);--radius:clamp(228px,27vw,322px)}
-  .info{width:min(268px,25vw)}
+  .info{width:min(330px,31vw)}
   .qr-card{width:112px}
   .display{font-size:clamp(46px,12.4vw,150px)}
 }
@@ -496,8 +499,7 @@ body.is-locked{overflow:hidden}
     position:relative;right:auto;bottom:auto;z-index:5;
     width:132px;margin:18px 16px 22px;align-self:flex-end;
   }
-  .player-box{width:100%;max-height:92svh;border-radius:20px}
-  .player-stage{height:min(62svh,520px)}
+  .player-box{max-width:100%;max-height:92svh;border-radius:20px}
   .menu-inner{padding:28px 22px;justify-content:center}
   .menu-link{font-size:clamp(34px,10vw,54px)}
   .player-foot{align-items:flex-start;gap:8px}
@@ -555,12 +557,6 @@ body.is-locked{overflow:hidden}
       <h2 class="info-title" id="infoTitle">严厉也温柔</h2>
       <p class="info-desc" id="infoDesc"></p>
       <div class="tags" id="infoTags"></div>
-      <div class="socials">
-        <button class="social" type="button" aria-label="Instagram（链接待替换）">IG</button>
-        <button class="social" type="button" aria-label="Behance（链接待替换）">BÉ</button>
-        <button class="social" type="button" aria-label="Bilibili（链接待替换）">B!</button>
-        <button class="social" type="button" aria-label="邮件（链接待替换）">✉</button>
-      </div>
     </section>
 
     <aside class="qr-card" id="qrCard" role="button" tabindex="0" aria-label="扫码添加微信">
@@ -596,7 +592,19 @@ body.is-locked{overflow:hidden}
     </div>
     <div class="player-foot">
       <div class="player-tools">
-        <button class="mini-pill" id="muteBtn" type="button" aria-pressed="true">静音 · Muted</button>
+        <button class="mini-pill" id="muteBtn" type="button" aria-pressed="false">有声 · Sound</button>
+        <label class="vol" for="volRange">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"></path><path d="M17 8.5a5 5 0 0 1 0 7"></path><path d="M19.5 6a8 8 0 0 1 0 12"></path></svg>
+          <input id="volRange" type="range" min="0" max="100" step="1" value="100" aria-label="音量">
+          <span class="vol-val" id="volVal">100%</span>
+        </label>
+        <select class="mini-pill" id="speedSel" aria-label="播放速度">
+          <option value="0.5">0.5×</option>
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
       </div>
       <span class="player-note" id="pNote">AI Film · 影像练习</span>
     </div>
@@ -665,6 +673,11 @@ const infoTitle = document.getElementById('infoTitle');
 const infoDesc = document.getElementById('infoDesc');
 const infoTags = document.getElementById('infoTags');
 const player = document.getElementById('player');
+const playerBox = player.querySelector('.player-box');
+const playerStage = player.querySelector('.player-stage');
+const volRange = document.getElementById('volRange');
+const volVal = document.getElementById('volVal');
+const speedSel = document.getElementById('speedSel');
 const pVideo = document.getElementById('pVideo');
 const pTitle = document.getElementById('pTitle');
 const pSub = document.getElementById('pSub');
@@ -738,6 +751,79 @@ window.addEventListener('resize', () => {
   videoSyncTimer = window.setTimeout(syncCoverVideos, 200);
 });
 
+/* ---------- 书堆旋转 + 按住左右拖动选择 ---------- */
+let spinAngle = 0, spinPaused = false, hovering = false, dragging = false;
+let dragStartX = 0, dragStartAngle = 0, suppressClick = false, snap = null;
+let resumeTimer = null, hoverLockUntil = 0;
+const SPIN_SPEED = 360 / 46;      // 与原来的 46 秒一圈一致
+const STEP = 360 / WORKS.length;  // 每部作品的间隔角度
+const DRAG_DEG = 0.6;             // 每拖动 1px 旋转的角度
+
+function applySpin(){ stack.style.transform = `rotateY(${spinAngle}deg)`; }
+
+function frontIndex(){
+  const k = Math.round(-spinAngle / STEP);
+  return ((k % WORKS.length) + WORKS.length) % WORKS.length;
+}
+
+function spinLoop(ts){
+  if(!spinLoop.last) spinLoop.last = ts;
+  const dt = Math.min(ts - spinLoop.last, 120) / 1000;
+  spinLoop.last = ts;
+  if(snap){
+    const t = Math.min((ts - snap.start) / snap.dur, 1);
+    const e = 1 - Math.pow(1 - t, 3);
+    spinAngle = snap.from + (snap.to - snap.from) * e;
+    applySpin();
+    if(t >= 1){
+      snap = null;
+      if(!opening) renderInfo(frontIndex());
+      clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(() => { spinPaused = false; }, 2600);
+    }
+  } else if(!spinPaused && !hovering && !dragging && !opening){
+    spinAngle += SPIN_SPEED * dt;
+    applySpin();
+  }
+  requestAnimationFrame(spinLoop);
+}
+requestAnimationFrame(spinLoop);
+
+function endDrag(e){
+  if(!dragging) return;
+  dragging = false;
+  stackWrap.classList.remove('is-dragging');
+  if(e && e.pointerId !== undefined){
+    try { if(stackWrap.hasPointerCapture(e.pointerId)) stackWrap.releasePointerCapture(e.pointerId); } catch(_) {}
+  }
+  spinPaused = true;
+  hoverLockUntil = performance.now() + 1200;
+  const target = Math.round(spinAngle / STEP) * STEP;
+  snap = { from: spinAngle, to: target, start: performance.now(), dur: 380 };
+  window.setTimeout(() => { suppressClick = false; }, 0);
+}
+
+stackWrap.addEventListener('pointerdown', e => {
+  if(opening) return;
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  dragging = true;
+  dragStartX = e.clientX;
+  dragStartAngle = spinAngle;
+  snap = null;
+  clearTimeout(resumeTimer);
+  stackWrap.classList.add('is-dragging');
+  try { stackWrap.setPointerCapture(e.pointerId); } catch(_) {}
+});
+stackWrap.addEventListener('pointermove', e => {
+  if(!dragging) return;
+  const dx = e.clientX - dragStartX;
+  if(Math.abs(dx) > 5) suppressClick = true;
+  spinAngle = dragStartAngle + dx * DRAG_DEG;
+  applySpin();
+});
+stackWrap.addEventListener('pointerup', endDrag);
+stackWrap.addEventListener('pointercancel', endDrag);
+
 /* ---------- 信息区 ---------- */
 function renderInfo(i, animate = true){
   active = i;
@@ -764,30 +850,66 @@ function paintInfo(i){
 /* ---------- 悬停 / 焦点 ---------- */
 function bindCover(btn, i){
   btn.addEventListener('mouseenter', () => {
-    if(opening) return;
-    stack.classList.add('is-paused');
+    if(opening || dragging || snap) return;
+    hovering = true;
+    if(performance.now() < hoverLockUntil) return;
     renderInfo(i);
   });
   btn.addEventListener('mouseleave', () => {
-    if(opening) return;
-    stack.classList.remove('is-paused');
+    hovering = false;
   });
   btn.addEventListener('focus', () => {
-    if(opening) return;
-    stack.classList.add('is-paused');
+    if(opening || dragging || snap) return;
+    hovering = true;
     renderInfo(i);
   });
   btn.addEventListener('blur', () => {
-    if(opening) return;
-    stack.classList.remove('is-paused');
+    hovering = false;
   });
-  btn.addEventListener('click', () => openPlayer(i));
+  btn.addEventListener('click', () => {
+    if(suppressClick){ suppressClick = false; return; }
+    openPlayer(i);
+  });
 }
 stackWrap.addEventListener('mouseleave', () => {
-  if(!opening) stack.classList.remove('is-paused');
+  hovering = false;
 });
 
 /* ---------- 播放 ---------- */
+function syncMuteUI(){
+  muteBtn.textContent = pVideo.muted ? '静音 · Muted' : '有声 · Sound';
+  muteBtn.setAttribute('aria-pressed', String(pVideo.muted));
+}
+
+/* 按作品比例计算播放器尺寸：竖版视频不再被横向拉成黑边横屏 */
+function layoutPlayer(aspect){
+  const [aw, ah] = String(aspect || '16:9').split(':').map(Number);
+  const ar = (aw && ah) ? aw / ah : 16 / 9;
+  const narrow = window.innerWidth <= 900;
+  const maxBoxW = Math.min(window.innerWidth * (narrow ? .94 : .95), 1120);
+  const maxStageH = Math.min(window.innerHeight * (narrow ? .60 : .68), 620);
+  let stageW = maxBoxW - 32;
+  let stageH = stageW / ar;
+  if(stageH > maxStageH){ stageH = maxStageH; stageW = stageH * ar; }
+  const boxW = Math.min(maxBoxW, Math.max(narrow ? 330 : 360, stageW + 32));
+  playerBox.style.width = boxW + 'px';
+  playerStage.style.width = stageW + 'px';
+  playerStage.style.height = stageH + 'px';
+}
+
+let silenceTimer = null;
+function detectAudio(w){
+  clearTimeout(silenceTimer);
+  pNote.textContent = w.en;
+  silenceTimer = window.setTimeout(() => {
+    const hasAudio = (pVideo.mozHasAudio === true) || (pVideo.webkitAudioDecodedByteCount || 0) > 0;
+    if(!hasAudio){
+      pNote.textContent = '本片无音轨 · 背景钢琴继续';
+      if(musicWanted) startMusic();
+    }
+  }, 1400);
+}
+
 function openPlayer(i){
   if(opening) return;
   opening = true;
@@ -801,10 +923,15 @@ function openPlayer(i){
   pVideo.poster = w.poster;
   pVideo.src = w.clip;
   pVideo.muted = true;
-  muteBtn.textContent = '静音 · Muted';
-  muteBtn.setAttribute('aria-pressed', 'true');
+  pVideo.volume = 1;
+  pVideo.playbackRate = 1;
+  volRange.value = '100';
+  volVal.textContent = '100%';
+  speedSel.value = '1';
+  syncMuteUI();
+  layoutPlayer(w.aspect);
 
-  stack.classList.add('is-paused');
+  spinPaused = true;
   stackWrap.classList.add('is-opening');
   pauseCoverVideos();
   pauseMusic();
@@ -813,20 +940,27 @@ function openPlayer(i){
   openTimer = window.setTimeout(() => {
     player.classList.add('is-open');
     document.body.classList.add('is-locked');
-    pVideo.play().catch(() => {});
+    pVideo.play().then(() => {
+      /* 先静音播放，成功后立刻以 100% 音量出声 */
+      pVideo.muted = false;
+      syncMuteUI();
+    }).catch(() => {});
+    detectAudio(w);
   }, 320);
 }
 
 function closePlayer(){
   clearTimeout(openTimer);
+  clearTimeout(silenceTimer);
   player.classList.remove('is-open');
   document.body.classList.remove('is-locked');
   pVideo.pause();
+  pNote.textContent = 'AI Film · 影像练习';
   window.setTimeout(() => {
     pVideo.removeAttribute('src');
     pVideo.load();
     stackWrap.classList.remove('is-opening');
-    stack.classList.remove('is-paused');
+    spinPaused = false;
     opening = false;
     syncCoverVideos();
     if(musicWanted) startMusic();
@@ -836,10 +970,24 @@ function closePlayer(){
 
 document.getElementById('playerClose').addEventListener('click', closePlayer);
 player.addEventListener('click', e => { if(e.target === player) closePlayer(); });
+window.addEventListener('resize', () => {
+  if(player.classList.contains('is-open')) layoutPlayer(WORKS[active].aspect);
+});
 muteBtn.addEventListener('click', () => {
   pVideo.muted = !pVideo.muted;
-  muteBtn.textContent = pVideo.muted ? '静音 · Muted' : '有声 · Sound';
-  muteBtn.setAttribute('aria-pressed', String(pVideo.muted));
+  syncMuteUI();
+});
+volRange.addEventListener('input', () => {
+  const v = Math.max(0, Math.min(100, Number(volRange.value)));
+  pVideo.volume = v / 100;
+  volVal.textContent = v + '%';
+  if(v > 0 && pVideo.muted){
+    pVideo.muted = false;
+    syncMuteUI();
+  }
+});
+speedSel.addEventListener('change', () => {
+  pVideo.playbackRate = Number(speedSel.value) || 1;
 });
 
 /* ---------- 背景钢琴：Web Audio 生成式，音量 30% ---------- */
@@ -966,8 +1114,6 @@ document.querySelectorAll('.menu-link').forEach(link => {
       window.setTimeout(openContact, 260);
     } else if(action === 'wechat'){
       pulseQr();
-    } else {
-      stackWrap.classList.remove('is-paused');
     }
   });
 });
@@ -1011,10 +1157,6 @@ function showToast(text){
   clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => toast.classList.remove('is-on'), 1800);
 }
-document.querySelectorAll('.social').forEach(btn => {
-  btn.addEventListener('click', () => showToast('社交链接待替换'));
-});
-
 /* ---------- 键盘 ---------- */
 window.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
