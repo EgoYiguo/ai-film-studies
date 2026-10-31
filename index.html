@@ -564,15 +564,18 @@ body.is-locked{overflow:hidden}
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
   .m-ruler{
-    position:relative;height:15px;margin:auto 30px 14px;flex:none;
-    background:repeating-linear-gradient(90deg,rgba(29,29,31,.3) 0 1px,transparent 1px 8px);
-    -webkit-mask-image:radial-gradient(ellipse 72% 100% at 50% 50%,#000 18%,transparent 100%);
-    mask-image:radial-gradient(ellipse 72% 100% at 50% 50%,#000 18%,transparent 100%);
+    position:relative;width:min(300px,84vw);margin:auto auto 2px;flex:none;
   }
-  .m-ruler::after{
-    content:"";position:absolute;left:50%;top:1px;width:2px;height:11px;
-    background:#e2552f;border-radius:2px;transform:translateX(-50%);
+  .m-ruler svg{display:block;width:100%;height:auto;overflow:visible}
+  .m-ruler .arc-line{fill:none;stroke:rgba(29,29,31,.24);stroke-width:1}
+  .m-ruler #arcTicks line{stroke:rgba(29,29,31,.3);stroke-width:1}
+  .m-ruler #arcTicks line.major{stroke:rgba(29,29,31,.52);stroke-width:1.4}
+  .m-ruler #arcNeedle{
+    transform-box:view-box;transform-origin:150px 122px;
+    transition:transform .55s var(--ease);
   }
+  .m-ruler #arcNeedle line{stroke:#e2552f;stroke-width:2;stroke-linecap:round}
+  .m-ruler .arc-hub{fill:#e2552f}
   .mobile-reel{
     position:relative;z-index:3;
     display:flex;gap:10px;width:100%;
@@ -654,7 +657,7 @@ body.is-locked{overflow:hidden}
       </div>
       <div class="phone-pop" id="phonePop" aria-hidden="true">
         <div class="phone-label">TEL · 电话</div>
-        <a class="phone-num" id="phoneNum" href="tel:+8613800000000">+86 138 0000 0000</a>
+        <a class="phone-num" id="phoneNum" href="tel:+8617783699486">177 8369 9486</a>
         <div class="phone-hint">轻点号码可直接拨打 · 微信同号</div>
       </div>
     </header>
@@ -668,7 +671,14 @@ body.is-locked{overflow:hidden}
         <h2 class="m-title" id="mTitle">严厉也温柔</h2>
         <p class="m-desc" id="mDesc"></p>
       </div>
-      <div class="m-ruler" aria-hidden="true"></div>
+      <div class="m-ruler" aria-hidden="true">
+        <svg viewBox="0 0 300 132">
+          <path class="arc-line" d="M38 122 A112 112 0 0 1 262 122"></path>
+          <g id="arcTicks"></g>
+          <g id="arcNeedle"><line x1="150" y1="122" x2="150" y2="28"></line></g>
+          <circle class="arc-hub" cx="150" cy="122" r="3.2"></circle>
+        </svg>
+      </div>
     </section>
 
     <div class="center-stage" id="centerStage">
@@ -780,21 +790,21 @@ body.is-locked{overflow:hidden}
 
 <script>
 const WORKS = [
+  {cn:'我的破书摊镇鬼', en:'Ghost at the Bookstall', year:'2025', dur:'00:34', aspect:'16:9', poster:'assets/w4/poster.jpg', clip:'assets/w4/clip.mp4',
+   desc:'根据法医朋友分享的案例，由豆包制作剧本，豆包 Seedance 2.5 制作分镜短片，剪映剪辑拼接。',
+   tags:['豆包','Seedance 2.5','剪映']},
+  {cn:'两男争宠', en:'Two Suitors', year:'2025', dur:'00:15', aspect:'2.30:1', poster:'assets/w3/poster.jpg', clip:'assets/w3/clip.mp4',
+   desc:'黑白双帅房顶打斗，由小云雀制作。',
+   tags:['小云雀','武侠','AI 短片']},
+  {cn:'赛博重庆', en:'Cyber Chongqing', year:'2025', dur:'00:30', aspect:'16:9', poster:'assets/w5/poster.jpg', clip:'assets/w5/clip.mp4',
+   desc:'帮入境游导游制作重庆赛博朋克宣传片，使用 GPT 写提示词，豆包生成。',
+   tags:['GPT','豆包','赛博朋克']},
   {cn:'严厉也温柔', en:'Stern, Yet Tender', year:'2026', dur:'00:15', aspect:'2.30:1', poster:'assets/w1/poster.jpg', clip:'assets/w1/clip.mp4',
    desc:'用豆包结合网络图片再次生成并提供剧情灵感，再结合剧情生成提示词，使用即梦制作。',
    tags:['豆包','即梦','AI 短片']},
   {cn:'天眼洞vlog', en:'Daylight from Above', year:'2026', dur:'00:38', aspect:'9:16', poster:'assets/w2/poster.jpg', clip:'assets/w2/clip.mp4',
    desc:'带外国人入境游时，根据实拍素材，由豆包生成剧本与道具，再由 TapNow 制作。',
    tags:['豆包','TapNow','入境游']},
-  {cn:'两男争宠', en:'Two Suitors', year:'2025', dur:'00:15', aspect:'2.30:1', poster:'assets/w3/poster.jpg', clip:'assets/w3/clip.mp4',
-   desc:'黑白双帅房顶打斗，由小云雀制作。',
-   tags:['小云雀','武侠','AI 短片']},
-  {cn:'我的破书摊镇鬼', en:'Ghost at the Bookstall', year:'2025', dur:'00:34', aspect:'16:9', poster:'assets/w4/poster.jpg', clip:'assets/w4/clip.mp4',
-   desc:'根据法医朋友分享的案例，由豆包制作剧本，豆包 Seedance 2.5 制作分镜短片，剪映剪辑拼接。',
-   tags:['豆包','Seedance 2.5','剪映']},
-  {cn:'赛博重庆', en:'Cyber Chongqing', year:'2025', dur:'00:30', aspect:'16:9', poster:'assets/w5/poster.jpg', clip:'assets/w5/clip.mp4',
-   desc:'帮入境游导游制作重庆赛博朋克宣传片，使用 GPT 写提示词，豆包生成。',
-   tags:['GPT','豆包','赛博朋克']},
   {cn:'一杯在手', en:'A Cup in Hand', year:'2026', dur:'00:09', aspect:'9:16', poster:'assets/w6/poster.jpg', clip:'assets/w6/clip.mp4',
    desc:'由豆包、GPT 生成产品多视图，后由 TapNow 生成，剪映剪辑。',
    tags:['豆包','GPT','TapNow','剪映']}
@@ -878,6 +888,26 @@ WORKS.forEach((w, i) => {
   mCards.push(btn);
 });
 
+/* 半圆弧刻度 + 红色指针 */
+const arcTicks = document.getElementById('arcTicks');
+const arcNeedle = document.getElementById('arcNeedle');
+if(arcTicks){
+  const NS = 'http://www.w3.org/2000/svg';
+  const cx = 150, cy = 122, R = 112;
+  for(let a = 180; a <= 360; a += 5){
+    const rad = a * Math.PI / 180;
+    const major = (a - 180) % 36 === 0;
+    const inner = major ? 97 : 105;
+    const line = document.createElementNS(NS, 'line');
+    line.setAttribute('x1', (cx + inner * Math.cos(rad)).toFixed(1));
+    line.setAttribute('y1', (cy + inner * Math.sin(rad)).toFixed(1));
+    line.setAttribute('x2', (cx + R * Math.cos(rad)).toFixed(1));
+    line.setAttribute('y2', (cy + R * Math.sin(rad)).toFixed(1));
+    if(major) line.classList.add('major');
+    arcTicks.appendChild(line);
+  }
+}
+
 let mActive = 0, mAutoTimer = null, mSuppressClick = false;
 const mNo = document.getElementById('mNo');
 const mEn = document.getElementById('mEn');
@@ -901,6 +931,9 @@ function setMobileActive(i){
   mActive = ((i % WORKS.length) + WORKS.length) % WORKS.length;
   mCards.forEach((c, k) => c.classList.toggle('is-active', k === mActive));
   renderMobileMeta(mActive);
+  if(arcNeedle){
+    arcNeedle.style.transform = `rotate(${-90 + mActive * (180 / (WORKS.length - 1))}deg)`;
+  }
   mCards.forEach((c, k) => {
     const v = c.querySelector('video');
     if(!v) return;
